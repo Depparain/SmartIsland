@@ -1,104 +1,186 @@
-# Smart Island for Windows (MVP v0.1)
+# Smart Island for Windows 🏝️
 
-> Ultra-lightweight Dynamic Island desktop overlay for Windows 10/11 powered by **Tauri v2 (Rust)** and **React 19 + TypeScript**.
+<p align="center">
+  <img src="app-icon.png" alt="Smart Island Logo" width="128" height="128" style="border-radius: 28px;" />
+</p>
+
+<p align="center">
+  <strong>Современный, легковесный Dynamic Island оверлей для Windows 10/11</strong><br />
+  Объединяет управление медиа, аудиоустройствами, Docker-контейнерами и универсальным VPN-клиентом в одном компактном островке у кромки экрана.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-blue?style=flat-square&logo=windows" alt="Platform" />
+  <img src="https://img.shields.io/badge/Tauri-v2-orange?style=flat-square&logo=tauri" alt="Tauri" />
+  <img src="https://img.shields.io/badge/Rust-2021-red?style=flat-square&logo=rust" alt="Rust" />
+  <img src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/VPN-Xray%20%2B%20sing--box-purple?style=flat-square" alt="VPN Dual Engine" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
+</p>
 
 ---
 
-## 1. System Architecture
+## 💡 О проекте и философия
+
+**Smart Island** родился из практической потребности решить одну простую задачу: **собственное удобство и продуктивность**.
+
+В процессе ежедневной работы за компьютером постоянно приходится переключаться между разными окнами и утилитами: проверять статус локальных Docker-контейнеров, переключать наушники или колонки, ставить на паузу музыку или переключать трек, подключаться к прокси или VPN, сверяться с уведомлениями.
+
+Вместо того чтобы держать открытыми десятки вкладок, утилит в системном трее и тяжелых панелей управления, все эти механизмы были объединены **в едином месте** — аккуратном, быстром и отзывчивом островке, который всегда под рукой у верхней кромки экрана.
+
+### Взгляд в будущее и развитие
+Проект изначально создавался «для себя», но архитектура заложена так, чтобы развиваться и расширяться со временем:
+- 🚀 **Постоянное улучшение**: добавление новых модулей, которые могут быть полезны не только автору, но и широкому кругу разработчиков и пользователей (системный мониторинг CPU/RAM/GPU, быстрые заметки, интеграции с сервисами).
+- 🧩 **Модульность**: система виджетов построена по принципу плагинов — каждый модуль изолирован, имеет собственные размеры и может быть кастомизирован или отключен.
+- 🤝 **Открытость для сообщества**: обратная связь, идеи и предложения приветствуются, чтобы сделать инструмент удобнее для всех.
+
+---
+
+## ✨ Основные возможности
+
+### 🏝️ Интерактивный Dynamic Island
+- **Apple-подобный дизайн**: капсульная форма, плавные скругления, эффект характерных боковых «ушек» (concave ears) и эстетичный Glassmorphism.
+- **Пружинная физика 60 FPS**: анимации масштабирования и перемещения реализованы на физическом движке Framer Motion (`stiffness: 300, damping: 28`).
+- **Свернутый режим (Карусель)**: переключение свайпом или колесиком мыши между медиаплеером, статусом Docker и VPN с индикаторами-точками.
+- **Таймаут неактивности**: автоматически сворачивается в ультратонкую эстетичную линию (3px), не отвлекая от работы.
+- **Игровой режим (Auto-hide)**: интеллектуально скрывается при запуске полноэкранных игр и 3D-приложений (`DirectX/D3D`), чтобы не мешать игровому процессу.
+- **Светлая и темная темы**: полноценная поддержка тем с мгновенным переключением.
+
+### 🛡️ VPN & Прокси (Гибридный Dual Engine)
+Поддерживает современные стандарты обхода цензуры на уровне лучших универсальных клиентов (таких как Incy, v2rayN, NekoBox):
+- **Двухъядерная архитектура (Xray-core + sing-box)**:
+  - **Xray-core v26.10.31**: нативная поддержка **VLESS Reality** с передовым **Post-Quantum шифрованием** (`mlkem768x25519plus`, `pqv=...`, `flow=xtls-rprx-vision`), **VMess**, **Trojan**, **Shadowsocks** (включая 2022 blake3).
+  - **sing-box v1.14**: для высокоскоростных протоколов нового поколения **Hysteria 2** (`hy2://`) и **TUIC v5** (`tuic://`).
+- **Умная защита от петель маршрутизации (Direct Server Bypass)**: трафик к IP-адресу сервера и локальным сетям направляется напрямую, благодаря чему веб-панели управления (например, 3X-UI) и локальные ресурсы остаются доступными всегда.
+- **Два режима работы**:
+  - *Системный прокси* (`127.0.0.1:7890`) — работает без прав администратора, с мгновенным уведомлением подсистемы Windows WinINet.
+  - *TUN-режим* — полный перехват трафика системы через виртуальный сетевой интерфейс Wintun.
+- **Реальный замер пинга**: встроенный замер круговой задержки до Cloudflare/Google через прокси-туннель с отображением миллисекунд прямо на островке.
+- **Безопасное завершение**: привязка дочерних процессов к Windows Job Object гарантирует выключение ядра и сброс прокси при закрытии приложения.
+
+### 🎵 Управление медиа (Windows GSMTC)
+- Интеграция с системным Windows Global System Media Transport Controls (WinRT).
+- Отображение текущего трека, исполнителя и обложки альбома в реальном времени.
+- Управление: воспроизведение, пауза, предыдущий и следующий треки.
+- В свернутом состоянии — живой анимированный эквалайзер и миниатюрная обложка.
+
+### 🔊 Аудиомикшер и устройства (Audio Switcher)
+- Отображение активных устройств воспроизведения (наушники, динамики) и записи (микрофоны).
+- Переключение устройства по умолчанию в один клик через недокументированный COM-интерфейс Windows `IPolicyConfig`.
+- Двусторонняя синхронизация аппаратного слайдера громкости через Windows CoreAudio (`IAudioEndpointVolume`).
+
+### 🐳 Docker Manager
+- Асинхронное подключение к локальному демону Docker через Windows Named Pipe (`//./pipe/docker_engine`).
+- Список контейнеров с их статусами, образами и проброшенными портами.
+- Быстрый запуск, остановка и перезапуск контейнеров с визуальной индикацией выполнения.
+
+### 🔔 Центр уведомлений (Notifications)
+- Мониторинг системных тостов через WinRT `UserNotificationListener`.
+- Всплывающий интерактивный баннер при поступлении нового уведомления.
+- История последних уведомлений и синхронизированная очистка с Windows Action Center.
+
+### ⚙️ Гибкая настройка
+- Свободное включение, отключение и Drag-and-Drop сортировка вкладок.
+- Выбор целевого монитора в многомониторных конфигурациях.
+
+---
+
+## 🏗️ Архитектура системы
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    FRONTEND: WebView2 (React 19 + TS)                   │
-│  ┌──────────────┐ ┌──────────────┐ ┌───────────────┐ ┌───────────────┐  │
-│  │ Window Shell │ │  Tab Router  │ │ Zustand Store │ │ Framer Motion │  │
-│  │ (Hover/Size) │ │ (6 Modules)  │ │ (State/Sync)  │ │ (60fps Spring)│  │
-│  └──────┬───────┘ └──────┬───────┘ └───────┬───────┘ └───────────────┘  │
-└─────────┼────────────────┼─────────────────┼────────────────────────────┘
-          │ IPC Invoke     │ Tauri Events    │ WebSocket (127.0.0.1:9090)
-┌─────────▼────────────────▼─────────────────┼────────────────────────────┐
-│                   CORE BACKEND: Tauri v2 (Rust)                         │
-│  ┌────────────────┐ ┌────────────────┐ ┌───┴────────────┐ ┌──────────┐  │
-│  │ Window Manager │ │ WinRT / COM    │ │ Docker Client  │ │ Sidecar  │  │
-│  │ (Win32 Hooks)  │ │ (Media/Audio/  │ │ (bollard via   │ │ Manager  │  │
-│  │                │ │  Toast/Cal)    │ │  Named Pipe)   │ │          │  │
-│  └────────────────┘ └───────┬────────┘ └───────┬────────┘ └────┬─────┘  │
-└─────────────────────────────┼──────────────────┼───────────────┼────────┘
-                              │                  │               │ Spawn
-┌─────────────────────────────▼──────────────────▼───────────────▼────────┐
-│                       OS & EXTERNAL SUBSYSTEMS                          │
-│  [WinRT GSMTC / AudioPolicy]   [//./pipe/docker_engine]   [sing-box.exe]│
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                      FRONTEND: WebView2 (React 19 + TS)                      │
+│  ┌───────────────┐ ┌────────────────┐ ┌────────────────┐ ┌────────────────┐  │
+│  │ Island Shell  │ │ Modular Router │ │  Zustand Store │ │ Framer Motion  │  │
+│  │ (Physics/Size)│ │  (6 Modules)   │ │  (State/Sync)  │ │ (Spring 60fps) │  │
+│  └───────┬───────┘ └────────┬───────┘ └────────┬───────┘ └────────────────┘  │
+└──────────┼──────────────────┼──────────────────┼─────────────────────────────┘
+           │ IPC (Invoke)     │ Tauri Events     │ WebSocket / Delay Check
+┌──────────▼──────────────────▼──────────────────┼─────────────────────────────┐
+│                     CORE BACKEND: Tauri v2 (Rust)                            │
+│  ┌────────────────┐ ┌────────────────┐ ┌───┴─────────────┐ ┌──────────────┐  │
+│  │ Window Manager │ │ WinRT / COM    │ │ Docker Client   │ │ Dual Engine  │  │
+│  │ (Win32 Hooks)  │ │ (GSMTC / Audio │ │ (bollard via    │ │ Sidecar Mgr  │  │
+│  │                │ │  Toast/Notify) │ │  Named Pipe)    │ │              │  │
+│  └────────────────┘ └───────┬────────┘ └───────┬─────────┘ └──────┬───────┘  │
+└─────────────────────────────┼──────────────────┼──────────────────┼──────────┘
+                              │                  │                  │ Spawn / Job
+┌─────────────────────────────▼──────────────────▼──────────────────▼──────────┐
+│                         ОС И ВНЕШНИЕ ПОДСИСТЕМЫ                              │
+│   [WinRT GSMTC / CoreAudio]     [//./pipe/docker_engine]     [Xray / sing-box]│
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Functional Modules & Acceptance Criteria
+## 📚 Использованные библиотеки, ядра и благодарности
 
-### Epic 0: Core Shell & Window Physics
-* **AC 0.1:** Idle window size is `180x32 px`. Clicks outside the capsule pass through to underlying windows.
-* **AC 0.2:** On hover (`onMouseEnter`), the physical Tauri window expands to `480x300 px` and the UI smoothly expands via Framer Motion spring physics (`stiffness: 300, damping: 25`).
-* **AC 0.3:** On cursor leave (`onMouseLeave`), the UI collapse animation completes first, and only on `onAnimationComplete` the physical window resizes back to `180x32 px`.
-* **AC 0.4:** Auto-hides when a full-screen DirectX/D3D game is detected (`SHQueryUserNotificationState == QUNS_RUNNING_D3D_FULL_SCREEN`).
+Проект опирается на выдающиеся открытые решения и библиотеки:
 
-### Epic 1: Media Control (Player)
-* **AC 1.1:** Track title, artist, and album art (converted from `IRandomAccessStreamReference` to base64 Data URL).
-* **AC 1.2:** Play/Pause, Next, and Prev controls with sub-100ms response.
-* **AC 1.3:** In Idle mode, mini album art with rotating disc and live equalizer indicator.
+### Прокси-ядра и сетевой стек
+* **[Xray-core](https://github.com/XTLS/Xray-core)** — эталонное ядро от проекта XTLS. Отвечает за поддержку передовых технологий VLESS Reality, Vision flow и Post-Quantum шифрования ML-KEM/Kyber.
+* **[sing-box](https://github.com/SagerNet/sing-box)** — универсальная и быстрая платформа прокси от SagerNet. Используется для протоколов Hysteria 2, TUIC и высокопроизводительной TUN-маршрутизации.
+* **[Wintun](https://www.wintun.net/)** — высокопроизводительный нативный TUN-драйвер для Windows от разработчиков WireGuard.
 
-### Epic 2: Audio I/O Switcher
-* **AC 2.1:** Active Render (Output) and Capture (Input) device lists; disconnected devices filtered out.
-* **AC 2.2:** Click switches default endpoint for `eConsole` & `eCommunications` via COM `IPolicyConfig`.
-* **AC 2.3:** Master volume slider controlling `IAudioEndpointVolume` with 2-way hardware volume sync.
+### Десктоп и системная интеграция (Rust)
+* **[Tauri v2](https://github.com/tauri-apps/tauri)** — легкий, безопасный и сверхбыстрый фреймворк для сборки настольных приложений на Rust.
+* **[windows-rs](https://github.com/microsoft/windows-rs)** — официальные Rust-биндинги от Microsoft для взаимодействия с Win32, WinRT, COM и системными событиями.
+* **[bollard](https://github.com/fussybeaver/bollard)** — асинхронный Docker API клиент для Rust с поддержкой Windows Named Pipes.
+* **[winreg](https://github.com/gentoo90/winreg-rs)** — библиотека для работы с реестром Windows (управление системным прокси).
 
-### Epic 3: Notification Hub
-* **AC 3.1:** WinRT `UserNotificationListener` permission check and request handling.
-* **AC 3.2:** Recent 15 notifications with app name, title, body, and timestamp.
-* **AC 3.3:** When a toast arrives in idle mode, expands to a `320x64 px` preview banner for 3 seconds.
-* **AC 3.4:** "Clear all" clears notifications in both island state and Windows Action Center.
-
-### Epic 4: Docker Manager
-* **AC 4.1:** Async Docker client connected over Windows Named Pipe `//./pipe/docker_engine`. Clean fallback when daemon is off.
-* **AC 4.2:** Container status badges, image names, and mapped ports.
-* **AC 4.3:** Start, Stop, and Restart controls with async loading spinner.
-
-### Epic 5: VPN & Proxy (Hybrid Xray-core + sing-box Dual Engine)
-* **AC 5.1:** Universal config generator from proxy URI keys (`vless://`, `vmess://`, `ss://`, `trojan://`, `hysteria2://`, `tuic://`).
-* **AC 5.2:** Dual-engine core auto-dispatch:
-  * **Xray-core v26.10.31** for VLESS Reality (with Post-Quantum `mlkem768x25519plus` & `pqv=...`, `flow=xtls-rprx-vision`), VMess, Trojan, and Shadowsocks 2022.
-  * **sing-box v1.14** for Hysteria 2 and TUIC.
-* **AC 5.3:** Direct server IP bypass to prevent routing loops and guarantee seamless access to server admin panels (e.g. 3X-UI) and web portals.
-* **AC 5.4:** System Proxy mode with instant WinINet refresh and full TUN interface mode.
-* **AC 5.5:** Real-time delay / ping testing via native Rust proxy probe and WebSocket traffic streaming.
-* **AC 5.6:** Windows Job Object lifecycle management: guaranteed child termination and proxy reset to `0` upon application exit.
-
-### Epic 6: Settings & Personalization
-* **AC 6.1:** Enable/disable and reorder tabs with instant navbar update.
-* **AC 6.2:** Target display monitor selector (`window.available_monitors()`).
-* **AC 6.3:** Light & Dark theme support with smooth reactive transitions.
+### Пользовательский интерфейс (Frontend)
+* **[React 19](https://react.dev/)** & **[TypeScript](https://www.typescriptlang.org/)** — основа пользовательского интерфейса с полной типизацией.
+* **[Framer Motion](https://github.com/framer/motion)** — декларативные пружинные анимации интерфейса.
+* **[Tailwind CSS](https://tailwindcss.com/)** — утилитарный фреймворк стилизации.
+* **[Zustand](https://github.com/pmndrs/zustand)** — реактивное хранилище состояния приложения.
+* **[@dnd-kit](https://dndkit.com/)** — библиотека для плавной сортировки и перетаскивания вкладок (Drag & Drop).
+* **[Lucide React](https://lucide.dev/)** — минималистичный и чистый набор векторных иконок.
 
 ---
 
-## 3. Development & Build
+## 🚀 Установка и запуск
 
-### Running Frontend in Browser:
+### Готовые установщики (Releases)
+Вы можете скачать готовый пакет из папки сборки:
+- **NSIS Setup (.exe)** — полноценный мастер установки с возможностью выбора пути и создания ярлыков:
+  [`src-tauri/target/release/bundle/nsis/Smart Island_0.1.0_x64-setup.exe`](file:///c:/Users/Depparain/Documents/SmartIsland/src-tauri/target/release/bundle/nsis/Smart%20Island_0.1.0_x64-setup.exe)
+- **Windows Installer (.msi)** — стандартный пакет установщика Windows:
+  [`src-tauri/target/release/bundle/msi/Smart Island_0.1.0_x64_en-US.msi`](file:///c:/Users/Depparain/Documents/SmartIsland/src-tauri/target/release/bundle/msi/Smart%20Island_0.1.0_x64_en-US.msi)
+- **Портативная версия (Portable)** — автономный файл `SmartIsland.exe` без необходимости установки.
+
+---
+
+## 🛠️ Сборка из исходников
+
+### Требования
+- **Node.js** 18+ и **npm**
+- **Rust** (актуальный стабильный тулчейн: `rustup default stable-x86_64-pc-windows-msvc`)
+- **Visual Studio C++ Build Tools**
+
+### 1. Клонирование и установка зависимостей
 ```bash
-npm run dev
+git clone https://github.com/<ваш-логин>/SmartIsland.git
+cd SmartIsland
+npm install
 ```
 
-### Running Full Desktop App in Dev Mode:
+### 2. Запуск в режиме разработки
 ```bash
 npm run tauri dev
 ```
 
-### Building Standalone Executable & Installers:
+### 3. Сборка продакшн-релиза
 ```bash
-# Build standalone release executable:
+# Сборка только исполняемого файла (без инсталляторов):
 npm run tauri build -- --no-bundle
 
-# Build Windows NSIS setup (.exe) and MSI (.msi) installers:
+# Полная сборка с созданием NSIS (.exe) и MSI (.msi) установщиков:
 npm run tauri build
 ```
 
-Generated installer packages will be located in:
-* `src-tauri/target/release/bundle/nsis/Smart Island_0.1.0_x64-setup.exe`
-* `src-tauri/target/release/bundle/msi/Smart Island_0.1.0_x64_en-US.msi`
+---
+
+## 📄 Лицензия
+
+Проект распространяется под открытой лицензией **MIT License**. Свободен для использования, модификации и распространения.
