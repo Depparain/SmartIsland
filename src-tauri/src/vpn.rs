@@ -714,7 +714,15 @@ pub fn generate_xray_config(uri: &str) -> Result<serde_json::Value, String> {
         _ => return Err(format!("Unsupported protocol for Xray: {}", scheme)),
     };
 
-    let mut direct_ips = vec!["geoip:private".to_string()];
+    let mut direct_ips = vec![
+        "10.0.0.0/8".to_string(),
+        "172.16.0.0/12".to_string(),
+        "192.168.0.0/16".to_string(),
+        "127.0.0.0/8".to_string(),
+        "fc00::/7".to_string(),
+        "fe80::/10".to_string(),
+        "::1/128".to_string(),
+    ];
     let mut direct_domains = vec![];
     if host.parse::<std::net::IpAddr>().is_ok() {
         direct_ips.push(format!("{}/32", host));
@@ -942,12 +950,17 @@ pub async fn vpn_toggle(
         let err_log_path = app_data.join("vpn_core_err.log");
         let err_file = std::fs::File::create(&err_log_path)
             .map_err(|e| format!("Could not create core error log: {}", e))?;
+        let out_file = err_file.try_clone().map_err(|e| format!("Could not clone log handle: {}", e))?;
 
         let mut cmd = Command::new(&executable);
+        if let Some(exe_dir) = executable.parent() {
+            cmd.current_dir(exe_dir);
+            cmd.env("XRAY_LOCATION_ASSET", exe_dir);
+        }
         cmd.arg("run")
             .arg("-c")
             .arg(&config_path)
-            .stdout(std::process::Stdio::null())
+            .stdout(out_file)
             .stderr(err_file)
             .creation_flags(CREATE_NO_WINDOW);
 
